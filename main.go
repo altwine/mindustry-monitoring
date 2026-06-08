@@ -7,6 +7,9 @@ import (
 	"sync"
 	"syscall"
 
+	_ "embed"
+
+	"github.com/golang/freetype/truetype"
 	_ "github.com/mattn/go-sqlite3"
 
 	"bytes"
@@ -291,6 +294,8 @@ var (
 )
 
 func main() {
+	initFont()
+
 	go router()
 
 	if err := initDB(); err != nil {
@@ -512,7 +517,7 @@ const icons = "\uE80A\u26A0\uE800\uE801\uE802\uE803\uE804\uE805\uE806\uE807\uE80
 
 // todo(altwine): refactor this lol
 // assumes that current font is already set and size if `fontSize`
-func DrawMindustryFormatString(dc *gg.Context, text string, x, y float64, fontSize int) {
+func DrawMindustryFormatString(dc *gg.Context, text string, x, y, fontSize float64) {
 	textArr := []rune(text)
 	xSum := 0.0
 	isBuildingColor := false
@@ -559,7 +564,7 @@ func DrawMindustryFormatString(dc *gg.Context, text string, x, y float64, fontSi
 	}
 }
 
-func measureMindustryString(dc *gg.Context, text string, fontSize int) float64 {
+func measureMindustryString(dc *gg.Context, text string, fontSize float64) float64 {
 	textArr := []rune(text)
 	isBuildingColor := false
 	xSum := 0.0
@@ -682,13 +687,13 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	}
 
 	dc.SetHexColor(textPrimary)
-	currSize := 128
+	currSize := 128.0
 	yDec := 0.0
 	for {
 		loadFont(dc, currSize)
 		strWidth := measureMindustryString(dc, si.Host, currSize)
 		if strWidth+cardX > cardWidth {
-			currSize -= 8
+			currSize -= 8.0
 			yDec += 4.0
 		} else {
 			break
@@ -760,11 +765,22 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	dc.DrawString("средний пинг:", cardWidth-cardX-wStr3/2-40, yCommon+yBottom+50)
 }
 
-func loadFont(dc *gg.Context, fontSize int) {
-	err := dc.LoadFontFace("./fonts/mindustry.ttf", float64(fontSize))
+var globalFontFace *truetype.Font
+
+//go:embed fonts/mindustry.ttf
+var fontBytes []byte
+
+func initFont() {
+	font, err := truetype.Parse(fontBytes)
 	if err != nil {
-		log.Printf("ршибка загрузки шрифта: %v", err)
+		log.Printf("ошибка загрузки шрифта: %v", err)
+		return
 	}
+	globalFontFace = font
+}
+
+func loadFont(dc *gg.Context, fontSize float64) {
+	dc.SetFontFace(truetype.NewFace(globalFontFace, &truetype.Options{Size: fontSize}))
 }
 
 func router() {
