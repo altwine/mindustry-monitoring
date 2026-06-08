@@ -1,2 +1,4 @@
 .env
 mindustry_stats.db
+mindustry_stats.db-wal
+mindustry_stats.db-shm
