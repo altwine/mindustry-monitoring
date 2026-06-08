@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 
@@ -391,7 +392,7 @@ func getStatsByAddress(address string, hours int) ([]HistoryRecord, error) {
 func initInfoObjects() {
 	for _, srv := range servers {
 		for _, addr := range srv.Address {
-			key := addr.Host + ":" + itoa(addr.Port)
+			key := addr.Host + ":" + strconv.Itoa(addr.Port)
 			if _, exists := infoObjects[key]; !exists {
 				infoObjects[key] = &serverinfo.ServerInfo{
 					Address: addr.Host,
@@ -456,7 +457,7 @@ func fetchAndSave() {
 func findServerNameByAddress(addrKey string) string {
 	for _, srv := range servers {
 		for _, addr := range srv.Address {
-			if addr.Host+":"+itoa(addr.Port) == addrKey {
+			if addr.Host+":"+strconv.Itoa(addr.Port) == addrKey {
 				return srv.Name
 			}
 		}
@@ -475,25 +476,6 @@ func waitForShutdown() {
 	os.Exit(0)
 }
 
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	var digits []byte
-	abs := n
-	if n < 0 {
-		abs = -n
-	}
-	for abs > 0 {
-		digits = append([]byte{byte('0' + abs%10)}, digits...)
-		abs /= 10
-	}
-	if n < 0 {
-		digits = append([]byte{'-'}, digits...)
-	}
-	return string(digits)
-}
-
 const (
 	width      = 1200
 	height     = 1200
@@ -502,22 +484,17 @@ const (
 )
 
 const (
-	mainBgColor = "#0F0F0F"
-	// cardBgColor      = "#1E1E1E"
-	// cardOutlineColor = "#00A896"
+	mainBgColor    = "#0F0F0F"
 	textPrimary    = "#FFFFFF"
-	accentColor    = "#FF6B6B"
 	secondaryColor = "#4CAF7A"
 	lineColor      = "#66CCFF"
 	axisColor      = "#3A3A3A"
 	labelColor     = "#AAAAAA"
 )
 
-const icons = "\uE80A\u26A0\uE800\uE801\uE802\uE803\uE804\uE805\uE806\uE807\uE808\uE809\uE80B\uE80D\uE80E\uE80F\uE810\uE811\uE812\uE813\uE814\uE815\uE816\uE817\uE818\uE819\uE81A\uE81B\uE81C\uE81D\uE81E\uE822\uE823\uE824\uE825\uE826\uE827\uE829\uE82A\uE82B\uE82C\uE82D\uE830\uE833\uE834\uE835\uE836\uE837\uE839\uE83A\uE83B\uE83D\uE83E\uE83F\uE842\uE844\uE845\uE84C\uE84D\uE852\uE853\uE85B\uE85C\uE85D\uE85E\uE85F\uE861\uE864\uE865\uE867\uE868\uE869\uE86B\uE86C\uE86D\uE86E\uE86F\uE870\uE871\uE872\uE873\uE874\uE875\uE876\uE877\uE878\uE879\uE87B\uE87C\uE88A\uE88B\uE88C\uE88D\uE88E\uE88F\uF029\uF0B0\uF0F6\uF120\uF129\uF12D\uF15B\uF15C\uF181\uF1C5\uF281\uF300\uF308"
-
 // todo(altwine): refactor this lol
 // assumes that current font is already set and size if `fontSize`
-func DrawMindustryFormatString(dc *gg.Context, text string, x, y, fontSize float64) {
+func DrawMindustryFormatString(dc *gg.Context, text string, x, y float64) {
 	textArr := []rune(text)
 	xSum := 0.0
 	isBuildingColor := false
@@ -564,7 +541,7 @@ func DrawMindustryFormatString(dc *gg.Context, text string, x, y, fontSize float
 	}
 }
 
-func measureMindustryString(dc *gg.Context, text string, fontSize float64) float64 {
+func measureMindustryString(dc *gg.Context, text string) float64 {
 	textArr := []rune(text)
 	isBuildingColor := false
 	xSum := 0.0
@@ -592,22 +569,12 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	dc.Clear()
 	cardX := float64(width-cardWidth) / 2
 	cardY := float64(height-cardHeight) / 2
-	// dc.SetHexColor(cardBgColor)
-	// dc.DrawRoundedRectangle(cardX, cardY, cardWidth, cardHeight, 20)
-	// dc.Fill()
-	// dc.SetHexColor(cardOutlineColor)
-	// dc.SetLineWidth(3)
-	// dc.DrawRoundedRectangle(cardX, cardY, cardWidth, cardHeight, 20)
-	// dc.Stroke()
 
 	const yAxisWidth = 65.0
-	const rightMargin = 0.0
 	const rightMarginText = 20.0*2 + 23.0
 
-	xMinCard := cardX
-	xMaxCard := cardX + cardWidth
-	xMinGraph := xMinCard + yAxisWidth
-	xMaxGraph := xMaxCard - rightMargin
+	xMinGraph := cardX + yAxisWidth
+	xMaxGraph := cardX + cardWidth
 
 	d := 200.0
 	yTop := 120.0 + d
@@ -615,13 +582,9 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	chartHeight := yBottom - yTop
 
 	maxPlayers := 0
-	validCount := 0
 	for _, r := range hr {
 		if r.Players > maxPlayers {
 			maxPlayers = r.Players
-		}
-		if r.Players != -1 {
-			validCount++
 		}
 	}
 	dataMax := float64(((maxPlayers + 4) / 5) * 5)
@@ -691,7 +654,7 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	yDec := 0.0
 	for {
 		loadFont(dc, currSize)
-		strWidth := measureMindustryString(dc, si.Host, currSize)
+		strWidth := measureMindustryString(dc, si.Host)
 		if strWidth+cardX > cardWidth {
 			currSize -= 8.0
 			yDec += 4.0
@@ -699,17 +662,11 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 			break
 		}
 	}
-	DrawMindustryFormatString(dc, si.Host, cardX, cardY+105-yDec, currSize)
+	DrawMindustryFormatString(dc, si.Host, cardX, cardY+105-yDec)
 
 	loadFont(dc, 58)
 	dc.SetHexColor(labelColor)
 	dc.DrawString(si.Address, cardX, cardY+185)
-
-	// line1Y := cardY + 185 + 20 + 22
-	// dc.SetHexColor(cardOutlineColor)
-	// dc.SetLineWidth(3.0)
-	// dc.DrawLine(cardX, line1Y, cardX+cardWidth, line1Y)
-	// dc.Stroke()
 
 	// online
 	var sumPlayers int
@@ -728,13 +685,7 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 		avgStr = fmt.Sprintf("%.1f", averagePlayers)
 	}
 
-	yCommon := 65.0 //200.0
-
-	// line2Y := yBottom + 25 + 30
-	// dc.SetHexColor(cardOutlineColor)
-	// dc.SetLineWidth(3.0)
-	// dc.DrawLine(cardX, line2Y, cardX+cardWidth, line2Y)
-	// dc.Stroke()
+	yCommon := 65.0
 
 	loadFont(dc, 128)
 	dc.SetHexColor(secondaryColor)
@@ -746,7 +697,7 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 
 	loadFont(dc, 128)
 	dc.SetHexColor(secondaryColor)
-	str2 := itoa(maxPlayers)
+	str2 := strconv.Itoa(maxPlayers)
 	wStr2, _ := dc.MeasureString(str2)
 	dc.DrawString(str2, cardX+cardWidth/2-wStr2, yCommon+yBottom+140+20)
 
@@ -804,19 +755,8 @@ func generateAndServeImage(c *gin.Context) {
 		return
 	}
 
-	// serverName := "none"
-	var serverInfo *serverinfo.ServerInfo
-	for _, srv := range servers {
-		for _, addr := range srv.Address {
-			key := addr.Host + ":" + itoa(addr.Port)
-			if key == address {
-				serverInfo = infoObjects[address]
-				// serverName = srv.Name
-			}
-		}
-	}
-
-	if serverInfo == nil {
+	serverInfo, ok := infoObjects[address]
+	if !ok {
 		c.Status(http.StatusBadRequest)
 		return
 	}
