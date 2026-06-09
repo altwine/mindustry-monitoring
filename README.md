@@ -11,5 +11,5 @@ $ go run .
 ## Через docker-контейнер (prod)
 ```bash
 $ docker build -t mindustry-monitoring .
-$ docker run --env-file .env -p 8080:8080 mindustry-monitoring
+$ docker run --rm --env-file .env -p 8080:8080 mindustry-monitoring
 ```

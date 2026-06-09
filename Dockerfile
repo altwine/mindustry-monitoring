@@ -8,10 +8,10 @@ RUN go mod download
 COPY . .
 
 ENV CGO_ENABLED=1
-RUN go build -o main .
+RUN go build -ldflags="-s -w" -trimpath -buildvcs=false -o main .
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates sqlite-libs
+RUN apk --no-cache add sqlite-libs
 WORKDIR /root/
 COPY --from=builder /app/main .
 COPY --from=builder /app/fonts ./fonts
