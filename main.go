@@ -8,6 +8,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 
 	"log"
@@ -26,10 +27,19 @@ var (
 	cycleCounter    = 0
 )
 
-func main() {
-	initFont()
+var DISCORD_TOKEN string
 
-	go router()
+func main() {
+	_, err := os.Stat(".env")
+	if err == nil {
+		godotenv.Load()
+	}
+	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
+	if DISCORD_TOKEN == "" {
+		log.Fatal("DISCORD_TOKEN not set")
+	}
+
+	initFont()
 
 	if err := initDB(); err != nil {
 		log.Fatal("ошибка инициализации бд:", err)
@@ -38,6 +48,9 @@ func main() {
 
 	initInfoObjects()
 	go pollLoop()
+	go router()
+	go initDiscordBot()
+	defer destroyDiscordBot()
 	waitForShutdown()
 
 }
