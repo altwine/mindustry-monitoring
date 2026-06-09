@@ -1,8 +1,15 @@
 # mindustry-monitoring
 
 # Запуск
-Создайте файл `.env` с `discord_bot_token=...` внутри.
+**Перед запуском:** создайте файл `.env` с `DISCORD_TOKEN=...` внутри проекта.
+
+## Через `go run` (dev)
+```bash
+$ go run .
 ```
+
+## Через docker-контейнер (prod)
+```bash
 $ docker build -t mindustry-monitoring .
-$ docker run -p 8080:8080 mindustry-monitoring
+$ docker run --env-file .env -p 8080:8080 mindustry-monitoring
 ```
