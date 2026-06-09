@@ -1,4 +1,14 @@
+<p align="center">
+	<img src="./assets/icon.png" alt="Mindustry monitoring icon"/>
+</p>
+
+---
+
 # mindustry-monitoring
+Сбор статистики публичных серверов mindustry и её отображение через дискорд-бота.
+
+> [!WARNING]
+> Не готово для продакшена
 
 # Запуск
 **Перед запуском:** создайте файл `.env` с `DISCORD_TOKEN=...` внутри проекта.
