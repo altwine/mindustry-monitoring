@@ -23,3 +23,6 @@ $ go run .
 $ docker build -t mindustry-monitoring .
 $ docker run --rm --env-file .env -p 8080:8080 mindustry-monitoring
 ```
+
+# Лицензия
+MIT, [LICENSE](LICENSE).
