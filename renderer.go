@@ -192,7 +192,7 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 		dc.Stroke()
 	}
 
-	const maxTimeLabels = 12
+	const maxTimeLabels = 11
 	if len(hr) > 0 {
 		loadFont(dc, 24)
 		dc.SetHexColor(labelColor)
