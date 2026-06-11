@@ -72,7 +72,8 @@ func initDB() error {
 		address TEXT NOT NULL,
 		timestamp INTEGER NOT NULL,
 		players INTEGER NOT NULL,
-		wave INTEGER NOT NULL
+		wave INTEGER NOT NULL,
+		ping INTEGER NOT NULL
 	);
 	CREATE INDEX IF NOT EXISTS idx_timestamp ON server_stats(timestamp);
 	CREATE INDEX IF NOT EXISTS idx_server_address ON server_stats(server_name, address);
@@ -127,10 +128,12 @@ func fetchAndSave() {
 			if err != nil {
 				log.Printf("ошибка обновления (%s): %v", k, err)
 				record.Players = -1
-				record.Wave = 0
+				record.Wave = -1
+				record.Ping = -1
 			} else {
 				record.Players = info.Players
 				record.Wave = info.Waves
+				record.Ping = info.Latency
 				log.Printf("%s: %d игроков, волна %d", k, info.Players, info.Waves)
 			}
 

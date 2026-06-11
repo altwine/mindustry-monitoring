@@ -243,6 +243,23 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 		avgStr = fmt.Sprintf("%.1f", averagePlayers)
 	}
 
+	// ping
+	var sumPing int
+	var countValid2 int
+	for _, r := range hr {
+		if r.Ping != -1 {
+			sumPing += r.Ping
+			countValid2++
+		}
+	}
+	var avgStr2 string
+	if countValid2 == 0 {
+		avgStr2 = "0"
+	} else {
+		averagePing := float64(sumPing) / float64(countValid2)
+		avgStr2 = fmt.Sprintf("%.0f", averagePing)
+	}
+
 	yCommon := 65.0
 
 	loadFont(dc, 128)
@@ -265,7 +282,7 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 
 	loadFont(dc, 128)
 	dc.SetHexColor(secondaryColor)
-	str3 := "---"
+	str3 := avgStr2
 	wStr3, _ := dc.MeasureString(str3)
 	dc.DrawString(str3, cardWidth-cardX-wStr3/2-40, yCommon+yBottom+140+20)
 
