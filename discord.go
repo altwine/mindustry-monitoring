@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/fogleman/gg"
 )
 
 var dg *discordgo.Session
@@ -85,10 +83,8 @@ func initDiscordBot() {
 					return
 				}
 
-				dc := gg.NewContext(width, height)
-				genImage(dc, *serverInfo, stats)
-				var buf bytes.Buffer
-				if err := dc.EncodePNG(&buf); err != nil {
+				buf, err := genImage(*serverInfo, stats)
+				if err != nil {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"image/color"
 	"log"
@@ -122,7 +123,9 @@ func measureMindustryString(dc *gg.Context, text string) float64 {
 	return xSum
 }
 
-func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
+func genImage(si serverinfo.ServerInfo, hr []HistoryRecord) (bytes.Buffer, error) {
+	dc := gg.NewContext(width, height)
+
 	dc.SetHexColor(mainBgColor)
 	dc.Clear()
 	cardX := float64(width-cardWidth) / 2
@@ -289,4 +292,12 @@ func genImage(dc *gg.Context, si serverinfo.ServerInfo, hr []HistoryRecord) {
 	loadFont(dc, 32)
 	dc.SetHexColor(textPrimary)
 	dc.DrawString("средний пинг:", cardWidth-cardX-wStr3/2-40, yCommon+yBottom+50)
+
+	var buf bytes.Buffer
+	err := dc.EncodePNG(&buf)
+	if err != nil {
+		return bytes.Buffer{}, err
+	}
+
+	return buf, nil
 }

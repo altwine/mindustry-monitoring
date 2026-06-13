@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"net/http"
 
-	"github.com/fogleman/gg"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,10 +33,8 @@ func generateAndServeImage(c *gin.Context) {
 		return
 	}
 
-	dc := gg.NewContext(width, height)
-	genImage(dc, *serverInfo, stats)
-	var buf bytes.Buffer
-	if err := dc.EncodePNG(&buf); err != nil {
+	buf, err := genImage(*serverInfo, stats)
+	if err != nil {
 		c.String(http.StatusInternalServerError, "ошибка генерации изображения: %v", err)
 		return
 	}
