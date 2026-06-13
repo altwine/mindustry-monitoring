@@ -39,6 +39,9 @@ func main() {
 		log.Fatal("DISCORD_TOKEN not set")
 	}
 
+	initServers()
+	log.Printf("loaded %d servers", len(servers))
+
 	initFont()
 
 	if err := initDB(); err != nil {
