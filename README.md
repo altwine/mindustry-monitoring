@@ -7,10 +7,10 @@
 # mindustry-monitoring
 Сбор статистики публичных серверов mindustry и её отображение через дискорд-бота.
 
-> [!WARNING]
-> Не готово для продакшена
+# Скриншоты
+<img src="./assets/preview.png" alt="Discord bot response screenshot"/>
 
-# Запуск
+# Запуск локально
 **Перед запуском:** создайте файл `.env` с `DISCORD_TOKEN=...` внутри проекта.
 
 ## Через `go run` (dev)
