@@ -5,24 +5,24 @@
 ---
 
 # mindustry-monitoring
-Сбор статистики публичных серверов mindustry и её отображение через дискорд-бота.
+Collects statistics from [public mindustry servers](https://github.com/Anuken/MindustryServerList/blob/main/servers_v8.json) and displays them through a discord bot.
 
-# Скриншоты
+## Screenshots
 <img src="./assets/preview.png" alt="Discord bot response screenshot"/>
 
-# Запуск локально
-**Перед запуском:** создайте файл `.env` с `DISCORD_TOKEN=...` внутри проекта.
+## Local setup
+**Before starting:** create a `.env` file with `DISCORD_TOKEN=...` inside the project.
 
-## Через `go run` (dev)
+### Using `go run` (dev)
 ```bash
 $ go run .
 ```
 
-## Через docker-контейнер (prod)
+### Using docker container (prod)
 ```bash
 $ docker build -t mindustry-monitoring .
 $ docker run --rm --env-file .env -p 8080:8080 mindustry-monitoring
 ```
 
-# Лицензия
-MIT, [LICENSE](LICENSE).
+# License
+MIT, see [LICENSE](LICENSE)
