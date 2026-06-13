@@ -2,13 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"os"
 	"os/signal"
 	"strconv"
 	"sync"
 	"syscall"
 
-	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 
 	"log"
@@ -27,16 +27,15 @@ var (
 	cycleCounter    = 0
 )
 
-var DISCORD_TOKEN string
-
 func main() {
-	_, err := os.Stat(".env")
-	if err == nil {
-		godotenv.Load()
-	}
-	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
-	if DISCORD_TOKEN == "" {
-		log.Fatal("DISCORD_TOKEN not set")
+	enableEndpoint := flag.Bool("enable-rest-api", false, "Enable REST API endpoints")
+	enableDiscordBot := flag.Bool("enable-discord-bot", false, "Enable Discord bot")
+
+	flag.Parse()
+
+	if !*enableDiscordBot && !*enableEndpoint {
+		log.Printf("Nothing is launched, use --enable-rest-api or --enable-discord-bot", len(servers))
+		return
 	}
 
 	initServers()
@@ -51,9 +50,13 @@ func main() {
 
 	initInfoObjects()
 	go pollLoop()
-	go router()
-	go initDiscordBot()
-	defer destroyDiscordBot()
+	if *enableEndpoint {
+		go router()
+	}
+	if *enableDiscordBot {
+		go initDiscordBot()
+		defer destroyDiscordBot()
+	}
 	waitForShutdown()
 
 }

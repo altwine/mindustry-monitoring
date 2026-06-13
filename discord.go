@@ -2,14 +2,27 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
+var DISCORD_TOKEN string
 var dg *discordgo.Session
 
 func initDiscordBot() {
 	var err error
+
+	_, err = os.Stat(".env")
+	if err == nil {
+		godotenv.Load()
+	}
+	DISCORD_TOKEN = os.Getenv("DISCORD_TOKEN")
+	if DISCORD_TOKEN == "" {
+		log.Fatal("DISCORD_TOKEN not set")
+	}
+
 	dg, err = discordgo.New("Bot " + DISCORD_TOKEN)
 	if err != nil {
 		log.Fatal("error creating session: ", err)

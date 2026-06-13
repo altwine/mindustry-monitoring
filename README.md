@@ -10,12 +10,15 @@ Collects statistics from [public mindustry servers](https://github.com/Anuken/Mi
 ## Screenshots
 <img src="./assets/preview.png" alt="Discord bot response screenshot"/>
 
+## Invitation
+Click [this](https://discord.com/oauth2/authorize?client_id=1513500604402761920) to invite.
+
 ## Local setup
 **Before starting:** create a `.env` file with `DISCORD_TOKEN=...` inside the project.
 
 ### Using `go run` (dev)
 ```bash
-$ go run .
+$ go run . --enable-rest-api --enable-discord-bot
 ```
 
 ### Using docker container (prod)

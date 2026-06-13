@@ -16,4 +16,4 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 COPY --from=builder /app/fonts ./fonts
 EXPOSE 8080
-CMD ["./main"]
+CMD ["./main", "--enable-rest-api", "--enable-discord-bot"]
